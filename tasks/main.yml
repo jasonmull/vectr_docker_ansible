@@ -60,7 +60,7 @@
     group: "{{ vectr_group | default('root') }}"
     backup: yes
   become: yes
-  notify: restart vectr
+  register: vectr_env_file
 
 - name: Create systemd service file for VECTR
   template:
@@ -68,12 +68,7 @@
     dest: /etc/systemd/system/vectr.service
     mode: '0644'
   become: yes
-  notify:
-    - reload systemd
-    - restart vectr
-
-- name: Force systemd reload if service file changed
-  meta: flush_handlers
+  register: vectr_service_file
 
 - name: Start and enable VECTR service
   systemd:
