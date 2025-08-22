@@ -21,11 +21,15 @@ vectr_data_key: ""
 vectr_jws_key: ""
 vectr_jwe_key: ""
 
-# Docker configuration
-vectr_compose_project_name: "vectr"
-vectr_docker_user: ""  # Optional: add specified user to docker group
+# Docker configuration (passed to geerlingguy.docker)
+docker_install_compose_plugin: true
+docker_compose_package: docker-compose-plugin
+docker_users:
+  - "{{ vectr_docker_user | default(ansible_user) }}"
 
-# Service management
+# Docker and service configuration
+vectr_compose_project_name: "vectr"
+vectr_docker_user: "{{ ansible_user }}"  # User to add to docker group
 vectr_force_reinstall: false
 vectr_wait_for_service: true
 vectr_show_access_info: true
