@@ -13,8 +13,8 @@
     path: "{{ vectr_install_path }}"
     state: directory
     mode: '0755'
-    owner: "{{ vectr_user | default('root') }}"
-    group: "{{ vectr_group | default('root') }}"
+    owner: "{{ vectr_user }}"
+    group: "{{ vectr_group }}"
   become: yes
 
 - name: Check if VECTR is already installed
@@ -27,8 +27,8 @@
     url: "{{ vectr_download_url }}"
     dest: "{{ vectr_install_path }}/sra-vectr-runtime-{{ vectr_version }}-ce.zip"
     mode: '0644'
-    owner: "{{ vectr_user | default('root') }}"
-    group: "{{ vectr_group | default('root') }}"
+    owner: "{{ vectr_user }}"
+    group: "{{ vectr_group }}"
   become: yes
   when: not vectr_installed.stat.exists or vectr_force_reinstall | default(false)
 
@@ -37,8 +37,8 @@
     src: "{{ vectr_install_path }}/sra-vectr-runtime-{{ vectr_version }}-ce.zip"
     dest: "{{ vectr_install_path }}"
     remote_src: yes
-    owner: "{{ vectr_user | default('root') }}"
-    group: "{{ vectr_group | default('root') }}"
+    owner: "{{ vectr_user }}"
+    group: "{{ vectr_group }}"
     creates: "{{ vectr_install_path }}/docker-compose.yml"
   become: yes
   when: not vectr_installed.stat.exists or vectr_force_reinstall | default(false)
@@ -56,8 +56,8 @@
     src: vectr.env.j2
     dest: "{{ vectr_install_path }}/.env"
     mode: '0600'
-    owner: "{{ vectr_user | default('root') }}"
-    group: "{{ vectr_group | default('root') }}"
+    owner: "{{ vectr_user }}"
+    group: "{{ vectr_group }}"
     backup: yes
   become: yes
   register: vectr_env_file
