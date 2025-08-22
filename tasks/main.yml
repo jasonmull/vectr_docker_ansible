@@ -1,0 +1,84 @@
+- name: Install basic packages needed for VECTR
+  apt:
+    name:
+      - unzip
+      - wget
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  become: yes
+
+- name: Create VECTR installation directory
+  file:
+    path: "{{ vectr_install_path }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ vectr_user | default('root') }}"
+    group: "{{ vectr_group | default('root') }}"
+  become: yes
+
+- name: Check if VECTR is already installed
+  stat:
+    path: "{{ vectr_install_path }}/docker-compose.yml"
+  register: vectr_installed
+
+- name: Download VECTR runtime
+  get_url:
+    url: "{{ vectr_download_url }}"
+    dest: "{{ vectr_install_path }}/sra-vectr-runtime-{{ vectr_version }}-ce.zip"
+    mode: '0644'
+    owner: "{{ vectr_user | default('root') }}"
+    group: "{{ vectr_group | default('root') }}"
+  become: yes
+  when: not vectr_installed.stat.exists or vectr_force_reinstall | default(false)
+
+- name: Extract VECTR runtime
+  unarchive:
+    src: "{{ vectr_install_path }}/sra-vectr-runtime-{{ vectr_version }}-ce.zip"
+    dest: "{{ vectr_install_path }}"
+    remote_src: yes
+    owner: "{{ vectr_user | default('root') }}"
+    group: "{{ vectr_group | default('root') }}"
+    creates: "{{ vectr_install_path }}/docker-compose.yml"
+  become: yes
+  when: not vectr_installed.stat.exists or vectr_force_reinstall | default(false)
+
+- name: Generate secure random keys if not provided
+  set_fact:
+    vectr_generated_postgres_password: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits') }}"
+    vectr_generated_data_key: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits,punctuation') }}"
+    vectr_generated_jws_key: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits,punctuation') }}"
+    vectr_generated_jwe_key: "{{ lookup('password', '/dev/null length=32 chars=ascii_letters,digits,punctuation') }}"
+  when: not vectr_use_existing_keys | default(false)
+
+- name: Template VECTR .env configuration file
+  template:
+    src: vectr.env.j2
+    dest: "{{ vectr_install_path }}/.env"
+    mode: '0600'
+    owner: "{{ vectr_user | default('root') }}"
+    group: "{{ vectr_group | default('root') }}"
+    backup: yes
+  become: yes
+  notify: restart vectr
+
+- name: Create systemd service file for VECTR
+  template:
+    src: vectr.service.j2
+    dest: /etc/systemd/system/vectr.service
+    mode: '0644'
+  become: yes
+  notify:
+    - reload systemd
+    - restart vectr
+
+- name: Force systemd reload if service file changed
+  meta: flush_handlers
+
+- name: Start and enable VECTR service
+  systemd:
+    name: vectr
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  become: yes
