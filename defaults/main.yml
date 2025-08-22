@@ -2,10 +2,10 @@
 vectr_version: "9.9.1"
 vectr_download_url: "https://github.com/SecurityRiskAdvisors/VECTR/releases/download/ce-{{ vectr_version }}/sra-vectr-runtime-{{ vectr_version }}-ce.zip"
 
-# Installation paths
+# Installation paths and ownership
 vectr_install_path: "/opt/vectr"
-vectr_user: "root"
-vectr_group: "root"
+vectr_user: "{{ ansible_user }}"  # Use the connecting user instead of root
+vectr_group: "{{ ansible_user }}"
 
 # Network configuration
 vectr_hostname: "localhost"  # CHANGE THIS - must be resolvable
