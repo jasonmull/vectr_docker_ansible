@@ -1,0 +1,41 @@
+# VECTR version and download settings
+vectr_version: "9.9.1"
+vectr_download_url: "https://github.com/SecurityRiskAdvisors/VECTR/releases/download/ce-{{ vectr_version }}/sra-vectr-runtime-{{ vectr_version }}-ce.zip"
+
+# Installation paths
+vectr_install_path: "/opt/vectr"
+vectr_user: "root"
+vectr_group: "root"
+
+# Network configuration
+vectr_hostname: "localhost"  # CHANGE THIS - must be resolvable
+vectr_port: 8081
+
+# PostgreSQL configuration
+vectr_postgres_user: "vectr"
+vectr_postgres_db: "vectr"
+vectr_postgres_password: ""  # Will be auto-generated if not set
+
+# Security keys (will be auto-generated if not set)
+vectr_data_key: ""
+vectr_jws_key: ""
+vectr_jwe_key: ""
+
+# Docker configuration
+vectr_compose_project_name: "vectr"
+vectr_docker_user: ""  # Optional: add specified user to docker group
+
+# Service management
+vectr_force_reinstall: false
+vectr_wait_for_service: true
+vectr_show_access_info: true
+vectr_validate_certs: false
+vectr_use_existing_keys: false
+
+# Container restart policy
+vectr_restart_policy: "unless-stopped"
+
+# Log settings
+vectr_log_driver: "json-file"
+vectr_log_max_size: "10m"
+vectr_log_max_file: "3"
